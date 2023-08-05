@@ -1,0 +1,45 @@
+#cloud-config
+merge_how:
+ - name: list
+   settings: [append]
+ - name: dict
+   settings: [no_replace, recurse_list]
+
+write_files:
+  - path: /home/azureuser/ora-vm-script.sh
+    owner: azureuser:azureuser
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      source ora-vm-script-params.sh
+      _oraOsAcct="oracle"
+      _oraOsGroup="oinstall"
+      _workDir="/home/azureuser/logs"
+      _logFile="${_workDir}/log_$(date +%F).log"
+
+      if [ ! -d "$_workDir" ]; then
+          mkdir -p $_workDir
+      fi
+      touch _logFile
+
+      echo "`date` - INF: Parameters" | tee -a ${_logFile}
+      echo "`date` - INF:     oraMntDir    =${oraMntDir}" | tee -a ${_logFile}
+      echo "`date` - INF:     ANFipAddr    =${ANFipAddr}" | tee -a ${_logFile}
+      echo "`date` - INF:     ANFvolumeName=${ANFvolumeName}" | tee -a ${_logFile}
+      echo "`date` - INF:     _oraOsAcct   =${_oraOsAcct}" | tee -a ${_logFile}
+      echo "`date` - INF:     _oraOsGroup  =${_oraOsGroup}" | tee -a ${_logFile}
+      echo "`date` - INF:     _workDir     =${_workDir}" | tee -a ${_logFile}
+      echo "`date` - INF:     _logFile     =${_logFile}" | tee -a ${_logFile}
+
+      echo "`date` - CMD: mkdir -p $oraMntDir" | tee -a ${_logFile}
+      sudo mkdir -p $oraMntDir >> ${_logFile} 2>&1
+
+      echo "`date` - CMD: sudo mount -t nfs -o rw,hard,rsize=1048576,wsize=1048576,sec=sys,vers=3,tcp $ANFipAddr:/$ANFvolumeName $oraMntDir" | tee -a ${_logFile}
+      sudo mount -t nfs -o rw,hard,rsize=1048576,wsize=1048576,sec=sys,vers=3,tcp $ANFipAddr:/$ANFvolumeName $oraMntDir >> ${_logFile} 2>&1
+
+      echo "`date` - CMD: chown ${_oraOsAcct}:${_oraOsGroup} $oraMntDir" | tee -a ${_logFile}
+      sudo chown ${_oraOsAcct}:${_oraOsGroup} $oraMntDir >> ${_logFile} 2>&1
+
+runcmd:
+ - cd /home/azureuser
+ - /home/azureuser/ora-vm-script.sh
