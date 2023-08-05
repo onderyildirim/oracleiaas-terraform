@@ -56,20 +56,6 @@ resource "azurerm_subnet_network_security_group_association" "vnetLockdownNsgAss
   network_security_group_id = azurerm_network_security_group.vnetLockdownNsg.id
 }
 
-resource "azurerm_network_interface" "ora-secondary-nic" {
-  name                = "${var.prefix}-secondary-nic"
-  location            = azurerm_resource_group.resourceGroup.location
-  resource_group_name = azurerm_resource_group.resourceGroup.name
-  enable_accelerated_networking = true
-
-  ip_configuration {
-    name                          = "${var.prefix}-secondary-nic"
-    subnet_id                     = azurerm_subnet.subnet1.id
-    private_ip_address_allocation = "Dynamic"
-  }
-
-}
-
 # Create a Network Interface Security Group association
 resource "azurerm_network_interface_security_group_association" "vnetLockdownNsg" {
   network_interface_id      = azurerm_network_interface.ora-secondary-nic.id

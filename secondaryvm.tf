@@ -2,14 +2,14 @@
 
 
 
-resource "azurerm_network_interface" "ora-primary-nic" {
-  name                = "${var.prefix}-primary-nic"
+resource "azurerm_network_interface" "ora-secondary-nic" {
+  name                = "${var.prefix}-secondary-nic"
   location            = azurerm_resource_group.resourceGroup.location
   resource_group_name = azurerm_resource_group.resourceGroup.name
   enable_accelerated_networking = true
 
   ip_configuration {
-    name                          = "${var.prefix}-primary-nic"
+    name                          = "${var.prefix}-secondary-nic"
     subnet_id                     = azurerm_subnet.subnet1.id
     private_ip_address_allocation = "Dynamic"
   }
@@ -17,12 +17,11 @@ resource "azurerm_network_interface" "ora-primary-nic" {
 }
 
 
-
-resource "azurerm_linux_virtual_machine" "primaryvm" {
+resource "azurerm_linux_virtual_machine" "secondaryvm" {
   name                  = "${var.prefix}-vm1"
   location              = azurerm_resource_group.resourceGroup.location
   resource_group_name   = azurerm_resource_group.resourceGroup.name
-  network_interface_ids = [azurerm_network_interface.ora-primary-nic.id]
+  network_interface_ids = [azurerm_network_interface.ora-secondary-nic.id]
   size               = var.oracleVmSize
   availability_set_id = azurerm_availability_set.avset.id
 
@@ -40,7 +39,7 @@ resource "azurerm_linux_virtual_machine" "primaryvm" {
   }
 
   os_disk {
-    name              = "${var.prefix}-primaryvm-osdisk"
+    name              = "${var.prefix}-secondaryvm-osdisk"
     caching           = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -49,8 +48,8 @@ resource "azurerm_linux_virtual_machine" "primaryvm" {
   admin_password = var.oracleVMAdminPassword
   disable_password_authentication = false
 
-#custom_data = data.cloudinit_config.ora-vm-cloudinit-config.rendered
-#custom_data  = filebase64("./configurevm.sh")
+  #custom_data = data.cloudinit_config.ora-vm-cloudinit-config.rendered
+  #custom_data  = filebase64("./configurevm.sh")
 
   # lifecycle {
   # replace_triggered_by = [

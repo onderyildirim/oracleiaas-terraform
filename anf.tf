@@ -46,7 +46,7 @@ resource "azurerm_netapp_volume" "anfVolume" {
   protocols                  = ["NFSv3"]
 #   allowed_clients            = [azurerm_network_interface.ora-primary-nic.private_ip_address]
 #   rule_index                 = 1
-  security_style             = "Unix"
+  security_style             = "unix"
   storage_quota_in_gb        = 1024
 #   snapshot_directory_visible = false
   export_policy_rule {
